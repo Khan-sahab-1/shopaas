@@ -1,0 +1,42 @@
+export default [
+  {
+    id: '0',
+    image: 'https://cdn.dummyjson.com/recipe-images/1.webp',
+    name: "McDonald's",
+    rating: 4.3,
+    time: '30-40',
+    offer: '50%',
+  },
+  {
+    id: '1',
+    image: 'https://cdn.dummyjson.com/recipe-images/2.webp',
+    name: 'Special Biriyani',
+    rating: 3.8,
+    time: '30-40',
+    offer: '60%',
+  },
+  {
+    id: '2',
+    image: 'https://cdn.dummyjson.com/recipe-images/3.webp',
+    name: 'Hyderabadi Bawarchi',
+    rating: 4.1,
+    time: '25-35',
+    offer: '55%',
+  },
+  {
+    id: '3',
+    image: 'https://cdn.dummyjson.com/recipe-images/5.webp',
+    name: 'Calofornia Burrito',
+    rating: 4.5,
+    time: '20-30',
+    offer: '30%',
+  },
+  {
+    id: '4',
+    image: 'https://cdn.dummyjson.com/recipe-images/4.webp',
+    name: 'udupi Utsav',
+    rating: 4.3,
+    time: '30-40',
+    offer: '60%',
+  },
+];

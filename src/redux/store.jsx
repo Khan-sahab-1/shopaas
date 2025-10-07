@@ -41,7 +41,6 @@
 
 // // export const persistor = persistStore(store);
 
-
 // import { configureStore } from '@reduxjs/toolkit';
 // import { persistStore, persistReducer } from 'redux-persist';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -98,32 +97,29 @@
 //     }),
 // });
 
-
 // export const persistor = persistStore(store);
 
-
-
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
+import {configureStore} from '@reduxjs/toolkit';
+import {persistStore, persistReducer} from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 
 import authReducer from './reducers/authreducers';
 import sessionReducer from './reducers/sessionSlice';
 import signupReducer from './reducers/signupSlice';
-import cartReducer from './reducers/fetchCartData'
+import cartReducer from './reducers/fetchCartData';
 import locationReducer from './reducers/locationSlice';
 import counterSlice from './reducers/counterReducers';
 import addressReducer from './reducers/addressSlice';
 import productTypeReducer from './reducers/productTypeSlice';
 import {AllproductsApi} from './rtkQuery/Productsfetch';
-import { productsApi } from './rtkQuery/Servicess';
+import {productsApi} from './rtkQuery/Servicess';
 import addTocartSlice from './reducers/addTocart';
-
+import {ecommerceApi} from './rtkQuery/ecommerceApi';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'location','session'],
+  whitelist: ['auth', 'location', 'session'],
 };
 
 const appReducer = combineReducers({
@@ -136,6 +132,7 @@ const appReducer = combineReducers({
   productType: productTypeReducer,
   session: sessionReducer,
   cartinfo: addTocartSlice,
+  [ecommerceApi.reducerPath]: ecommerceApi.reducer,
   [productsApi.reducerPath]: productsApi.reducer,
   [AllproductsApi.reducerPath]: AllproductsApi.reducer,
 });
@@ -153,9 +150,11 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
-      serializableCheck: false, 
+      serializableCheck: false,
       immutableCheck: false,
-    }).concat(productsApi.middleware),
+    })
+      .concat(productsApi.middleware)
+      .concat(ecommerceApi.middleware),
 });
 
 export const persistor = persistStore(store);

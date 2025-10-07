@@ -1,11 +1,11 @@
 import React from 'react';
-import { Dimensions, StyleSheet, View, Image, Text } from 'react-native';
+import {Dimensions, StyleSheet, View, Image, Text} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import { API_URLS, BASE_URL } from '../utils/apiurls';
+import {API_URLS, BASE_URL} from '../utils/apiurls';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const Slider = ({ images = [] }) => {
+const Slider = ({images = []}) => {
   const defaultImages = [
     'https://source.unsplash.com/random/800x600',
     'https://source.unsplash.com/random/801x600',
@@ -13,7 +13,11 @@ const Slider = ({ images = [] }) => {
     'https://source.unsplash.com/random/803x600',
   ];
 
-  const imageList = images.length > 0 ? images : defaultImages;
+  const apiImages = images?.result?.data?.sliders?.main_slider || images;
+  const imageList =
+    Array.isArray(apiImages) && apiImages.length > 0
+      ? apiImages
+      : defaultImages;
 
   return (
     <View style={styles.container}>
@@ -21,10 +25,10 @@ const Slider = ({ images = [] }) => {
         loop
         autoPlay
         data={imageList}
-        width={width * 0.9}
+        width={width * 0.95}
         height={200}
         scrollAnimationDuration={1000}
-        renderItem={({ item, index }) => (
+        renderItem={({item, index}) => (
           <View style={styles.itemContainer}>
             <Image
               source={{

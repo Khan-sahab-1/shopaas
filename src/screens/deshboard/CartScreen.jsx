@@ -42,15 +42,16 @@ const CartScreen = ({navigation, route}) => {
   const [isChecked, setIsChecked] = useState(false);
   const [imageslist, setImageslist] = useState([]);
   const [description, setDescription] = useState('');
-  console.log(imageslist, 'LIST');
-  console.log(cart, 'Cart Data');
+  const [companeyOne, setcompaneyOne] = useState(false);
+  // console.log(imageslist, 'LIST');
+  // console.log(cart, 'Cart Data');
   const handleImagepicker = () => {
     ImagePicker.openPicker({
       multiple: true,
-      cropping: true, 
+      cropping: true,
       mediaType: 'photo',
-      includeBase64: true, 
-      compressImageQuality: 0.8, 
+      includeBase64: true,
+      compressImageQuality: 0.8,
     })
       .then(images => {
         console.log(images); // Array of selected images
@@ -384,14 +385,13 @@ const CartScreen = ({navigation, route}) => {
   };
 
   const handleProcessCheckout = async () => {
-   
     try {
-       setisloading(true)
+      setisloading(true);
       if (cart?.sale_order_lines) {
         const unpublished = Object.values(cart.sale_order_lines).some(
           line => line?.is_published === false,
         );
-      
+
         if (unpublished) {
           Alert.alert(
             'Error',
@@ -404,7 +404,7 @@ const CartScreen = ({navigation, route}) => {
 
       formData.append('description', description || '');
       formData.append('delivery_type', selectedDeliveryOption || false);
-      formData.append('removed_imgs','')
+      formData.append('removed_imgs', '');
 
       imageslist.forEach((img, index) => {
         const file = {
@@ -446,8 +446,8 @@ const CartScreen = ({navigation, route}) => {
     } catch (error) {
       console.log('Checkout Error:', error);
       Alert.alert('Error', 'Unable to process checkout. Please try again.');
-    } finally{
-      setisloading(false)
+    } finally {
+      setisloading(false);
     }
   };
 
@@ -544,7 +544,7 @@ const CartScreen = ({navigation, route}) => {
             </View>
           </View>
 
-          {cart?.redeem?.show &&!cart?.hideHomeDeveliery&& (
+          {cart?.redeem?.show && !cart?.hideHomeDeveliery && (
             <View style={{...styles.card}}>
               {cart?.redeem?.show &&
                 Object.values(cart?.coupons || {}).length <= 0 && (
@@ -745,37 +745,36 @@ const CartScreen = ({navigation, route}) => {
             </Text>
           </TouchableOpacity> */}
           <TouchableOpacity
-  style={styles.checkoutButton}
-  activeOpacity={0.8}
-  onPress={async () => {
-    if (!cart?.hideHomeDeveliery) {
-      // 🔹 Case 1: Delivery options visible → must select
-      if (selectedDeliveryOption) {
-        const success = await handleProcessCheckout(); // ✅ Call before navigation
-        if (success) {
-          navigation.navigate(navigationString.BILLINGADDRESS, {
-            deliveryType: selectedDeliveryOption,
-          });
-        }
-      } else {
-        MessageShow.error('Alert', 'Please Select Delivery Options');
-      }
-    } else {
-      // 🔹 Case 2: Home delivery hidden → skip check
-      const success = await handleProcessCheckout(); 
-      console.log("✅ Checkout Success:", success);// ✅ Call before navigation
-      if (success) {
-        navigation.navigate(navigationString.BILLINGADDRESS, {
-          deliveryType: 'pickup', // or default type
-        });
-      }
-    }
-  }}>
-  <Text style={styles.checkoutButtonText}>
-    Proceed to Checkout • ₹ {total.toFixed(2)}
-  </Text>
-</TouchableOpacity>
-
+            style={styles.checkoutButton}
+            activeOpacity={0.8}
+            onPress={async () => {
+              if (!cart?.hideHomeDeveliery) {
+                // 🔹 Case 1: Delivery options visible → must select
+                if (selectedDeliveryOption) {
+                  const success = await handleProcessCheckout(); // ✅ Call before navigation
+                  if (success) {
+                    navigation.navigate(navigationString.BILLINGADDRESS, {
+                      deliveryType: selectedDeliveryOption,
+                    });
+                  }
+                } else {
+                  MessageShow.error('Alert', 'Please Select Delivery Options');
+                }
+              } else {
+                // 🔹 Case 2: Home delivery hidden → skip check
+                const success = await handleProcessCheckout();
+                console.log('✅ Checkout Success:', success); // ✅ Call before navigation
+                if (success) {
+                  navigation.navigate(navigationString.BILLINGADDRESS, {
+                    deliveryType: 'pickup', // or default type
+                  });
+                }
+              }
+            }}>
+            <Text style={styles.checkoutButtonText}>
+              Proceed to Checkout • ₹ {total.toFixed(2)}
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
 

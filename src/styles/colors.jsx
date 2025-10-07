@@ -1,4 +1,4 @@
-import { green } from "react-native-reanimated/lib/typescript/Colors";
+import {green} from 'react-native-reanimated/lib/typescript/Colors';
 
 export const COLORS = {
   themeColor: '#2E2E2E',
@@ -38,5 +38,5 @@ export const COLORS = {
   BACKGROUND: '#F3F3F3',
   GARY: '#ccc',
   BLUE: '#0c0273',
-  green:'#0E4731'
+  green: '#4CAF50',
 };

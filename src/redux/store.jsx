@@ -119,7 +119,7 @@ import {ecommerceApi} from './rtkQuery/ecommerceApi';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'location', 'session'],
+  whitelist: ['auth', 'location', 'session', 'cartinfo'],
 };
 
 const appReducer = combineReducers({

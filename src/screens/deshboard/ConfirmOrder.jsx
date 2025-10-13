@@ -1,5 +1,4 @@
 import {
-
   StyleSheet,
   Text,
   View,
@@ -7,27 +6,30 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS } from '../../styles/colors';
+import React, {useEffect, useState} from 'react';
+import {COLORS} from '../../styles/colors';
 import Headercomp from '../../components/Headercomp';
 import makeApiCall from '../../utils/apiHelper';
-import { API_URLS } from '../../utils/apiurls';
+import {API_URLS} from '../../utils/apiurls';
 import Loader from '../../components/Loader';
 import axios from 'axios';
 import navigationString from '../../navigation/navigationString';
 import RazorpayCheckout from 'react-native-razorpay';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSelector} from 'react-redux';
 
 // import PayUNonSeamless from '';
 
-const ConfirmOrder = ({ navigation }) => {
+const ConfirmOrder = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [orderData, setOrderData] = useState(null);
-  const [isfinalLoding,setIsFinalLoding]=useState(false)
+  const [isfinalLoding, setIsFinalLoding] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [paymentResponse, setPaymentResponse] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
-  console.log(selectedPaymentMethod,'Selected Mode')
+  console.log(selectedPaymentMethod, 'Selected Mode');
+  const cartData = useSelector(state => state.cartinfo.cartData);
+  console.log(cartData, 'CartDataaa');
   useEffect(() => {
     console.log('calling');
     // console.log('PayUBizSdk:', PayUBizSdk);
@@ -70,10 +72,11 @@ const ConfirmOrder = ({ navigation }) => {
 
       const response = await makeApiCall(API_URLS.payNow, 'POST', {
         jsonrpc: '2.0',
-        params: { acquirer_id: parseInt(id, 10) },
+        params: {acquirer_id: parseInt(id, 10)},
       });
-      console.log(response?.result, 'RESPONCE------------');
+      console.log(response?.result, 'RESPONCE------------CODDDDDDDD');
       if (response?.result?.errorMessage) {
+        console.log(response?.result?.errorMessage);
         Alert.alert('Payment Error', response.result.errorMessage);
         return;
       }
@@ -104,7 +107,6 @@ const ConfirmOrder = ({ navigation }) => {
   //     });
 
   //     console.log('Razorpay Init Full Response:', JSON.stringify(response, null, 2));
-
 
   //     const paymentData = response?.result?.paymentData;
 
@@ -140,7 +142,7 @@ const ConfirmOrder = ({ navigation }) => {
   //           notes: {
   //               'order_id': paymentData.order_id,
   //           },
-         
+
   //         }
   //       console.log('Options:', options);
 
@@ -161,7 +163,7 @@ const ConfirmOrder = ({ navigation }) => {
   //         .catch(error => {
   //           console.log('Payment Error (caught):', error);
   //         });
-          
+
   //     }
   //   } catch (err) {
   //     console.error('Razorpay Exception:', err);
@@ -241,28 +243,27 @@ const ConfirmOrder = ({ navigation }) => {
   //   }
   // };
 
-
   const handleRAzerpay = async id => {
     try {
       if (!id) {
         Alert.alert('Error', 'Please select a payment method');
         return;
       }
-  
+
       setIsFinalLoding(true);
-  
+
       const response = await makeApiCall(API_URLS.payNow, 'POST', {
         jsonrpc: '2.0',
-        params: { acquirer_id: parseInt(id, 10) },
+        params: {acquirer_id: parseInt(id, 10)},
       });
-  
+
       console.log(
         'Razorpay Init Full Response:',
         JSON.stringify(response, null, 2),
       );
-  
+
       const paymentData = response?.result?.paymentData;
-  
+
       if (response?.result?.payment === 'razorpay' && paymentData) {
         const options = {
           description: 'Credits towards consultation',
@@ -276,29 +277,29 @@ const ConfirmOrder = ({ navigation }) => {
             contact: paymentData.contact,
             name: paymentData.name,
           },
-          theme: { color: '#F37254' },
+          theme: {color: '#F37254'},
           notes: {
             order_id: paymentData.order_id,
           },
         };
-  
+
         console.log('Options:', options);
-  
+
         RazorpayCheckout.open(options)
           .then(async data => {
             console.log('calling');
             console.log(data);
-  
+
             // 🔹 Start loader for verification API
             setIsFinalLoding(true);
-  
+
             try {
               const res = await makeApiCall(API_URLS.razorpay_api, 'POST', {
                 jsonrpc: '2.0',
-                params: { payment_id: data?.razorpay_payment_id },
+                params: {payment_id: data?.razorpay_payment_id},
               });
               console.log('Payment Success:', res);
-  
+
               if (res?.result?.data?.success) {
                 navigation.navigate(navigationString.SUCCESS);
               } else {
@@ -324,29 +325,29 @@ const ConfirmOrder = ({ navigation }) => {
       setIsFinalLoding(false);
     }
   };
-  
-  const handlePayUmaney = async (id) => {
+
+  const handlePayUmaney = async id => {
     try {
       if (!id) {
         Alert.alert('Error', 'Please select a payment method');
         return;
       }
-  
+
       setIsLoading(true);
-  
+
       const response = await makeApiCall(API_URLS.payNow, 'POST', {
         jsonrpc: '2.0',
-        params: { acquirer_id: parseInt(id, 10) },
+        params: {acquirer_id: parseInt(id, 10)},
       });
-  
+
       const paymentData = response?.result?.paymentData;
       if (!paymentData) {
         Alert.alert('Payment Error', 'No payment data found');
         return;
       }
-  
+
       // Navigate to WebView
-      navigation.navigate(navigationString.PAYUWEBVIEW, { paymentData });
+      navigation.navigate(navigationString.PAYUWEBVIEW, {paymentData});
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to initiate PayU payment');
@@ -354,10 +355,6 @@ const ConfirmOrder = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-  
-  
-
-  
 
   const getsessioinfo = async () => {
     try {
@@ -371,8 +368,6 @@ const ConfirmOrder = ({ navigation }) => {
     }
   };
 
-
- 
   useEffect(() => {
     getPaymentDetails();
     getsessioinfo();
@@ -394,7 +389,6 @@ const ConfirmOrder = ({ navigation }) => {
       default:
         Alert.alert('Error', 'Payment method not supported');
     }
-    
   };
   const renderAddressCard = (address, title) => (
     <View style={styles.addressCard}>
@@ -423,8 +417,7 @@ const ConfirmOrder = ({ navigation }) => {
             styles.paymentCard,
             selectedPaymentMethod?.id === payment.id && styles.selectedPayment,
           ]}
-          onPress={() => setSelectedPaymentMethod(payment)}
-        >
+          onPress={() => setSelectedPaymentMethod(payment)}>
           <View style={styles.paymentHeader}>
             <View style={styles.radioContainer}>
               <View
@@ -439,17 +432,15 @@ const ConfirmOrder = ({ navigation }) => {
                   styles.paymentName,
                   selectedPaymentMethod?.id === payment.id &&
                     styles.selectedOptionText,
-                ]}
-              >
+                ]}>
                 {payment.name}
               </Text>
             </View>
             <View
               style={[
                 styles.providerBadge,
-                { backgroundColor: getProviderColor(payment.provider) },
-              ]}
-            >
+                {backgroundColor: getProviderColor(payment.provider)},
+              ]}>
               <Text style={styles.providerText}>
                 {payment.provider.toUpperCase()}
               </Text>
@@ -480,7 +471,7 @@ const ConfirmOrder = ({ navigation }) => {
 
   if (!orderData) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.whiteColor }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: COLORS.whiteColor}}>
         <Headercomp
           title={'Confirm Order'}
           left={true}
@@ -492,7 +483,7 @@ const ConfirmOrder = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.whiteColor }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.whiteColor}}>
       <Headercomp
         title={'Confirm Order'}
         left={true}
@@ -518,8 +509,7 @@ const ConfirmOrder = ({ navigation }) => {
           style={styles.confirmButton}
           onPress={handleconfirm}
           activeOpacity={0.8}
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           <Text style={styles.confirmButtonText}>
             {isLoading ? 'Processing...' : 'Confirm Order'}
           </Text>
@@ -630,7 +620,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E9ECEF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
@@ -679,7 +669,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,

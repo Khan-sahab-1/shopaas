@@ -1,19 +1,20 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import { COLORS } from '../../../../../styles/colors';
+import {Alert, StyleSheet, Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {COLORS} from '../../../../../styles/colors';
 import Headercomp from '../../../../../components/Headercomp';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import GeneralInfo from './GeneralInfo';
 import Salesvarients from './Salesvarients';
 import Ecommercevarients from './Ecommercevarients';
-import { API_URLS } from '../../../../../utils/apiurls';
+import {API_URLS} from '../../../../../utils/apiurls';
 import axios from 'axios';
 import ButtonCompo from '../../../../../components/ButtonCompo';
 import Loader from '../../../../../components/Loader';
+import {SafeAreaView} from 'react-native-safe-area-context';
 const Tab = createMaterialTopTabNavigator();
-const EditproductVarients = ({ navigation, route }) => {
+const EditproductVarients = ({navigation, route}) => {
   console.log(route, 'Route');
-  const { item } = route?.params;
+  const {item} = route?.params;
   console.log(item, 'ITEMS');
   const [generalData, setGeneralData] = useState({});
   const [salesData, setSalesData] = useState({});
@@ -43,12 +44,12 @@ const EditproductVarients = ({ navigation, route }) => {
       //   }
       // });
       const formData = new FormData();
-  
+
       Object.keys(fullPayload).forEach(key => {
         const value = fullPayload[key];
-  
+
         if (key === 'image' && value && value.path) {
-          formData.append("reference_image", {
+          formData.append('reference_image', {
             uri: value.path,
             type: value.mime || 'image/jpeg',
             name: value.filename || 'image.jpg',
@@ -84,7 +85,7 @@ const EditproductVarients = ({ navigation, route }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.whiteColor }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.whiteColor}}>
       <Headercomp
         title={'Products'}
         left={true}
@@ -92,17 +93,16 @@ const EditproductVarients = ({ navigation, route }) => {
       />
       <ButtonCompo
         title="Save"
-        style={{ width: '40%', left: 15 }}
+        style={{width: '40%', left: 15}}
         onPress={handleSave}
       />
       <Tab.Navigator
         screenOptions={{
-          tabBarLabelStyle: { fontSize: 14, fontWeight: '600' },
-          tabBarStyle: { backgroundColor: COLORS.whiteColor },
-          tabBarIndicatorStyle: { backgroundColor: COLORS.blueColor },
+          tabBarLabelStyle: {fontSize: 14, fontWeight: '600'},
+          tabBarStyle: {backgroundColor: COLORS.whiteColor},
+          tabBarIndicatorStyle: {backgroundColor: COLORS.blueColor},
           tabBarScrollEnabled: true,
-        }}
-      >
+        }}>
         <Tab.Screen name="General Info">
           {props => (
             <GeneralInfo
@@ -137,7 +137,7 @@ const EditproductVarients = ({ navigation, route }) => {
         </Tab.Screen>
       </Tab.Navigator>
       <Loader visible={isLoding} />
-    </View>
+    </SafeAreaView>
   );
 };
 

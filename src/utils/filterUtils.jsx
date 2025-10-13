@@ -1,6 +1,4 @@
-// src/utils/filterUtils.js
 export function normalizeProductList(rawProducts = {}) {
-  // rawProducts expected as: { products_data_1: { 123: {...}, 124: {...} }, products_data_2: {...} }
   const keys = Object.keys(rawProducts || {});
   const dataKeys = keys.filter(
     k =>
@@ -10,7 +8,6 @@ export function normalizeProductList(rawProducts = {}) {
   );
   const merged = dataKeys.reduce((acc, key) => {
     const obj = rawProducts[key] || {};
-    // object might be { id: product } or an array
     if (Array.isArray(obj)) {
       return acc.concat(obj);
     } else {

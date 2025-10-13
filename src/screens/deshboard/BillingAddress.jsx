@@ -19,21 +19,18 @@ import navigationString from '../../navigation/navigationString';
 import {useFocusEffect} from '@react-navigation/native';
 import Loader from '../../components/Loader';
 import MessageShow from '../../constant/MessageShow';
-import { useDispatch } from 'react-redux';
-import { fetchCartData } from '../../redux/reducers/fetchCartData';
+import {useDispatch} from 'react-redux';
+import {fetchCartData} from '../../redux/reducers/fetchCartData';
 
 const BillingAddress = ({navigation}) => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [validateLoding,setvalidateLoding]=useState(false)
-  const [isEditable,setIsEditable]=useState(false)
+  const [validateLoding, setvalidateLoding] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
-  const dispatch=useDispatch()
-
-
-  
+  const dispatch = useDispatch();
 
   const fetchAddresses = async () => {
     try {
@@ -41,25 +38,21 @@ const BillingAddress = ({navigation}) => {
         jsonrpc: '2.0',
         params: {},
       });
-      console.log(response)
+      console.log(response, '09209029392390230230293029');
       if (response.result.message === 'Success') {
         const addressData = response?.result?.data?.partners || {};
         const addressesArray = Object.values(addressData);
         setAddresses(addressesArray);
-      
-  
+
         if (addressesArray.length > 0 && !selectedAddressId) {
           setSelectedAddressId(addressesArray[0].id);
         }
-  
+
         // Auto-open modal if country, state, or city is missing
         const incompleteAddress = addressesArray.find(
-          addr =>
-            !addr.country?.id ||
-            !addr.state?.id ||
-            !addr.city?.id
+          addr => !addr.country?.id || !addr.state?.id || !addr.city?.id,
         );
-  
+
         if (incompleteAddress) {
           setEditingAddress(incompleteAddress);
           setIsEditable(incompleteAddress.is_editable ?? true);
@@ -70,7 +63,7 @@ const BillingAddress = ({navigation}) => {
       console.log('Error fetching addresses:', error);
     }
   };
-  
+
   const selectAddress = async id => {
     try {
       setIsLoading(true);
@@ -95,7 +88,7 @@ const BillingAddress = ({navigation}) => {
         params: {},
       });
       console.log(res, 'RES');
-      if (res?.result?.message==='success' && res?.result?.redirectFlag) {
+      if (res?.result?.message === 'success' && res?.result?.redirectFlag) {
         navigation.navigate(navigationString.CONFIRMORDER);
       } else if (res?.result?.statusCode == '200') {
         navigation.navigate(navigationString.CONFIRMORDER);
@@ -104,23 +97,18 @@ const BillingAddress = ({navigation}) => {
         //   'Error',
         //   'For this product order cannot be created because ID is coming null'
         // );
-        MessageShow.error(
-          'Error',(res?.result?.errorMessage)
-        );
+        MessageShow.error('Error', res?.result?.errorMessage);
       }
-      
-      
     } catch (error) {
-      console.log(error);
+      console.log(error, 'iuaiuwyeiuweywteywyey');
     } finally {
       setvalidateLoding(false);
     }
   };
 
-
   const handleAddressSelection = id => {
     setSelectedAddressId(id);
-    selectAddress(id); 
+    selectAddress(id);
   };
 
   useEffect(() => {
@@ -134,7 +122,7 @@ const BillingAddress = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       fetchAddresses();
-      dispatch(fetchCartData())
+      dispatch(fetchCartData());
       return () => {};
     }, []),
   );
@@ -184,7 +172,7 @@ const BillingAddress = ({navigation}) => {
                       </Text>
                     </View>
                     <Icon
-                     name="edit" 
+                      name="edit"
                       size={18}
                       color={isSelected ? COLORS.blackColor : COLORS.whiteColor}
                       style={styles.icon}
@@ -225,16 +213,16 @@ const BillingAddress = ({navigation}) => {
         data={addresses}
       /> */}
       <AddressModal
-  visible={isModalOpen}
-  onClose={() => {setIsModalOpen(false)
-    fetchAddresses();
-  }}
-  isEditable={isEditable}
-  data={editingAddress} 
-/>
-<Loader visible={isLoading}/>
-<Loader visible={validateLoding}/>
-
+        visible={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          fetchAddresses();
+        }}
+        isEditable={isEditable}
+        data={editingAddress}
+      />
+      <Loader visible={isLoading} />
+      <Loader visible={validateLoding} />
     </SafeAreaView>
   );
 };

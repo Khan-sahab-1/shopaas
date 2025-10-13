@@ -489,7 +489,7 @@
 // });
 
 // src/screens/Home/HomeScreen.js
-import React, {useState, useMemo, useCallback} from 'react';
+import React, {useState, useMemo, useCallback, useEffect} from 'react';
 import {View, Text, StatusBar, TouchableOpacity, FlatList} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {
@@ -503,7 +503,6 @@ import {
   normalizeProductList,
   filterProductsByCategoryAndCompany,
 } from '../../utils/filterUtils';
-// import {addItem} from '../../redux/reducers/addTocart';
 import {COLORS} from '../../styles/colors';
 import {moderateScale} from '../../styles/responsiveSize';
 import navigationString from '../../navigation/navigationString';
@@ -513,10 +512,12 @@ import useDebouncedEffect from '../../utils/useDebouncedEffect';
 import ProductsCompo from '../../components/Productscompo/ProductsCompo';
 import FilteringModal from '../../components/Productscompo/FilteringModal';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import makeApiCall from '../../utils/apiHelper';
+import {API_URLS} from '../../utils/apiurls';
 
 const HomeScreen = ({navigation}) => {
   const dispatch = useDispatch();
-  const userinfo = useSelector(state => state.auth); // assuming auth exists
+  const userinfo = useSelector(state => state.auth);
   const confirmedLocation = useSelector(state => state.location);
 
   const {
@@ -525,6 +526,7 @@ const HomeScreen = ({navigation}) => {
     error: homeError,
   } = useGetHomeDataQuery({pageNumber: 1});
   const {data: sliderRaw, isFetching: isSliderLoading} = useGetSlidersQuery();
+  console.log(homeError, isHomeLoading, 'Home Data (homeRaw)');
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -568,6 +570,7 @@ const HomeScreen = ({navigation}) => {
     () => (filteredProducts.length ? filteredProducts : products),
     [filteredProducts, products],
   );
+  console.log(displayProducts, 'Display Products');
 
   const handleAddToCart = useCallback(
     item => {
@@ -606,7 +609,20 @@ const HomeScreen = ({navigation}) => {
       );
     }
   };
-
+  const fethhomdata = async () => {
+    try {
+      const responce = await makeApiCall(API_URLS.getcatagory, 'POST', {
+        jsonrpc: '2.0',
+        params: {pageNumber: 1},
+      });
+      console.log(responce, 'getcatagoryWOWOWOWOWOWOWOWWOOOOWOWOWOWOWO');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fethhomdata();
+  }, []);
   const renderItem = useCallback(
     ({item}) => (
       <ProductsCompo
@@ -620,14 +636,14 @@ const HomeScreen = ({navigation}) => {
     [handleAddToCart, navigation],
   );
 
-  if (homeError) {
-    return (
-      <SafeAreaView
-        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Failed to load. Please try again.</Text>
-      </SafeAreaView>
-    );
-  }
+  // if (homeError) {
+  //   return (
+  //     <SafeAreaView
+  //       style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+  //       <Text>Failed to load. Please try again.</Text>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <SafeAreaView
@@ -707,6 +723,12 @@ const HomeScreen = ({navigation}) => {
         }}
         contentContainerStyle={{paddingBottom: 80}}
         columnWrapperStyle={styles.columnWrapper}
+        ListEmptyComponent={() => (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text>Failed to load. Please try again.</Text>
+          </View>
+        )}
       />
 
       <FilteringModal

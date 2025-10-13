@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BASE_URL } from './apiurls';
+import {BASE_URL} from './apiurls';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -30,6 +30,13 @@ const makeApiCall = async (
     return response.data;
   } catch (error) {
     console.error('API call error:', error?.response?.data || error.message);
+    console.error('🚨 API Call Error Details:');
+    console.error('➡️ Endpoint:', `${BASE_URL}${url}`);
+    console.error('➡️ Method:', method);
+    console.error('➡️ Payload:', data);
+    console.error('➡️ Response:', error?.response?.data || error.message);
+    console.error('➡️ Status:', error?.response?.status || 'No status code');
+
     throw error;
   }
 };

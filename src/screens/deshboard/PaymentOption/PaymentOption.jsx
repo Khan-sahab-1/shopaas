@@ -67,7 +67,7 @@
 //       }
 //     }
 //   }, [addressInfo]);
-  
+
 //   // Modify your handleSelectAddress to also store the selected address ID
 //   const handleSelectAddress = (address) => {
 //     setSelectedAddress(address);
@@ -473,7 +473,6 @@
 //   },
 // });
 
-
 import {
   StyleSheet,
   Text,
@@ -483,9 +482,9 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../../../styles/colors';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {COLORS} from '../../../styles/colors';
 import Headercomp from '../../../components/Headercomp';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -495,23 +494,25 @@ import {
   fetchAddressInfo,
   setSelectedAddressId,
 } from '../../../redux/reducers/addressSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Adressmodal from '../../../constant/Adressmodal';
 import makeApiCall from '../../../utils/apiHelper';
-import { API_URLS } from '../../../utils/apiurls';
+import {API_URLS} from '../../../utils/apiurls';
 
-const PaymentOption = ({ navigation, route }) => {
-  const { payableAmount } = route?.params;
+const PaymentOption = ({navigation, route}) => {
+  const {payableAmount} = route?.params;
   const [selectedPayment, setSelectedPayment] = useState('');
   const [expandAddress, setExpandAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentdetails, setpaymentdetail] = useState([]);
   const [isLoding, setisLoding] = useState(false);
   const dispatch = useDispatch();
+  const cartData = useSelector(state => state.cartinfo.cartData);
+  console.log(cartData, 'CartDataaa');
 
   const paymentMethods = paymentdetails?.payment_acquirers;
 
-  const { addressInfo, loading } = useSelector(state => state.address);
+  const {addressInfo, loading} = useSelector(state => state.address);
   const [addresschangeModal, setaddresschangeModala] = useState(false);
 
   useEffect(() => {
@@ -528,7 +529,7 @@ const PaymentOption = ({ navigation, route }) => {
     }
   }, [addressInfo]);
 
-  const handleSelectAddress = (address) => {
+  const handleSelectAddress = address => {
     setSelectedAddress(address);
     setExpandAddress(false);
   };
@@ -548,7 +549,7 @@ const PaymentOption = ({ navigation, route }) => {
       setisLoding(false);
     }
   };
-  
+
   const handleselectAddress = async selected_shipping_address => {
     try {
       setisLoding(true);
@@ -580,16 +581,22 @@ const PaymentOption = ({ navigation, route }) => {
   }, [selectedAddress]);
 
   // Helper function to get an icon based on the provider name
-  const getPaymentIcon = (provider) => {
+  const getPaymentIcon = provider => {
     switch (provider) {
       case 'payumoney':
-        return <MaterialIcons name="credit-card" size={20} color={COLORS.primary} />;
+        return (
+          <MaterialIcons name="credit-card" size={20} color={COLORS.primary} />
+        );
       case 'transfer':
         return <FontAwesome name="money" size={20} color={COLORS.primary} />;
       case 'razorpay':
-        return <MaterialIcons name="payment" size={20} color={COLORS.primary} />;
+        return (
+          <MaterialIcons name="payment" size={20} color={COLORS.primary} />
+        );
       default:
-        return <MaterialIcons name="help-outline" size={20} color={COLORS.primary} />;
+        return (
+          <MaterialIcons name="help-outline" size={20} color={COLORS.primary} />
+        );
     }
   };
 
@@ -615,19 +622,18 @@ const PaymentOption = ({ navigation, route }) => {
 
           <TouchableOpacity
             style={styles.addressContent}
-            onPress={() => setExpandAddress(!expandAddress)}
-          >
-            <View style={{ flex: 1, padding: 20 }}>
+            onPress={() => setExpandAddress(!expandAddress)}>
+            <View style={{flex: 1, padding: 20}}>
               {selectedAddress ? (
                 <View key={selectedAddress.id} style={styles.box}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Icon
                       name="location-pin"
                       size={24}
                       color={COLORS.primaryColor}
-                      style={{ marginRight: 10 }}
+                      style={{marginRight: 10}}
                     />
-                    <View style={{ flex: 1 }}>
+                    <View style={{flex: 1}}>
                       <Text style={styles.name}>{selectedAddress.name}</Text>
                       <Text style={styles.addressText}>
                         {selectedAddress.street}
@@ -649,7 +655,7 @@ const PaymentOption = ({ navigation, route }) => {
                   </View>
                 </View>
               ) : (
-                <Text style={{ marginTop: 20, textAlign: 'center' }}>
+                <Text style={{marginTop: 20, textAlign: 'center'}}>
                   No Address Found
                 </Text>
               )}
@@ -665,8 +671,7 @@ const PaymentOption = ({ navigation, route }) => {
           {expandAddress && (
             <TouchableOpacity
               style={styles.changeAddressBtn}
-              onPress={() => setaddresschangeModala(true)}
-            >
+              onPress={() => setaddresschangeModala(true)}>
               <Text style={styles.changeAddressText}>
                 CHANGE DELIVERY ADDRESS
               </Text>
@@ -678,41 +683,45 @@ const PaymentOption = ({ navigation, route }) => {
         <View style={styles.paymentContainer}>
           <Text style={styles.sectionTitle}>Choose Payment Method</Text>
           {isLoding ? (
-            <ActivityIndicator style={{ marginTop: 20 }} size="large" color={COLORS.primary} />
-          ) : (
-            // **Conditional rendering with a safety check**
-            paymentMethods && paymentMethods.length > 0 ? (
-              paymentMethods.map(method => (
-                <TouchableOpacity
-                  key={method.id}
+            <ActivityIndicator
+              style={{marginTop: 20}}
+              size="large"
+              color={COLORS.primary}
+            />
+          ) : // **Conditional rendering with a safety check**
+          paymentMethods && paymentMethods.length > 0 ? (
+            paymentMethods.map(method => (
+              <TouchableOpacity
+                key={method.id}
+                style={[
+                  styles.paymentMethod,
+                  selectedPayment === method.id && styles.selectedPayment,
+                ]}
+                onPress={() => setSelectedPayment(method.id)}>
+                <View style={styles.methodLeft}>
+                  {getPaymentIcon(method.provider)}
+                  <View style={styles.methodInfo}>
+                    <Text style={styles.methodName}>{method.name}</Text>
+                    <Text style={styles.methodDesc}>
+                      {method.auth_msg.replace(/<[^>]+>/g, '')}
+                    </Text>
+                  </View>
+                </View>
+                <View
                   style={[
-                    styles.paymentMethod,
-                    selectedPayment === method.id && styles.selectedPayment,
-                  ]}
-                  onPress={() => setSelectedPayment(method.id)}
-                >
-                  <View style={styles.methodLeft}>
-                    {getPaymentIcon(method.provider)}
-                    <View style={styles.methodInfo}>
-                      <Text style={styles.methodName}>{method.name}</Text>
-                      <Text style={styles.methodDesc}>{method.auth_msg.replace(/<[^>]+>/g, '')}</Text>
-                    </View>
-                  </View>
-                  <View
-                    style={[
-                      styles.radioOuter,
-                      selectedPayment === method.id && styles.radioOuterSelected,
-                    ]}
-                  >
-                    {selectedPayment === method.id && (
-                      <View style={styles.radioInner} />
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text style={{ textAlign: 'center', marginTop: 20 }}>No payment methods available.</Text>
-            )
+                    styles.radioOuter,
+                    selectedPayment === method.id && styles.radioOuterSelected,
+                  ]}>
+                  {selectedPayment === method.id && (
+                    <View style={styles.radioInner} />
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={{textAlign: 'center', marginTop: 20}}>
+              No payment methods available.
+            </Text>
           )}
         </View>
       </ScrollView>
@@ -753,7 +762,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -808,7 +817,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -866,7 +875,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,

@@ -1,7 +1,3 @@
-
-
-
-
 // Base URL
 // export const BASE_URL = 'https://shopaas.arkess.com';
 export const BASE_URL = 'http://192.168.31.93:8000';
@@ -118,7 +114,7 @@ export const API_URLS = {
 
   toggleCompanyUser: BASE_URL + '/internal_user/convert_user',
   getContactUsData: BASE_URL + '/contactUsData',
-  SavecontactUS:BASE_URL+'/contactus_data',
+  SavecontactUS: BASE_URL + '/contactus_data',
   customerOrderDetails: BASE_URL + '/endConsumer/orderDetails',
 
   changeActivePriceList1: BASE_URL + '/store/changeActivePriceList1',
@@ -126,11 +122,10 @@ export const API_URLS = {
   validateDelivery: BASE_URL + '/validate_delivery',
   shortClose: BASE_URL + '/order/short_close',
 
-  fetch_stock_picking_pick:BASE_URL+'/api/fetch_stock_picking_pick',
-  fetch_stock_picking_pack:BASE_URL+'/api/fetch_stock_picking_pack',
-  fetch_stock_picking_dispatch:BASE_URL+'/api/fetch_stock_picking_dispatch',
-  fetchcreate_order:BASE_URL+'/createOrder',
-  fetchTaxesDetails:BASE_URL+'/TaxesDetails',
-  SavefetchDetails:BASE_URL+'/api/taxes_details'
- 
+  fetch_stock_picking_pick: BASE_URL + '/api/fetch_stock_picking_pick',
+  fetch_stock_picking_pack: BASE_URL + '/api/fetch_stock_picking_pack',
+  fetch_stock_picking_dispatch: BASE_URL + '/api/fetch_stock_picking_dispatch',
+  fetchcreate_order: BASE_URL + '/createOrder',
+  fetchTaxesDetails: BASE_URL + '/TaxesDetails',
+  SavefetchDetails: BASE_URL + '/api/taxes_details',
 };

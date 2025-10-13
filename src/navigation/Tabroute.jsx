@@ -60,7 +60,7 @@
 //           },
 //         }}
 //       /> */}
-     
+
 //       <Tab.Screen
 //         name={navigationString.CARTSCREEN}
 //         component={CartScreen}
@@ -102,10 +102,9 @@
 
 // const styles = StyleSheet.create({});
 
-
-import { StyleSheet, Text, View } from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   CartScreen,
   HomeScreen,
@@ -114,14 +113,16 @@ import {
 } from '../screens/Index';
 import navigationString from './navigationString';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useSelector } from 'react-redux';
-import { moderateScale } from '../styles/responsiveSize';
+import {useSelector} from 'react-redux';
+import {moderateScale} from '../styles/responsiveSize';
 import ItemCart from '../screens/cart/ItemCart';
 
 const Tab = createBottomTabNavigator();
 
 const Tabroute = () => {
   const totalItems = useSelector(state => state.cart.totalItems);
+  const cartData = useSelector(state => state.cartinfo.cartData);
+  console.log(cartData, '------');
 
   return (
     <Tab.Navigator
@@ -143,18 +144,17 @@ const Tabroute = () => {
         },
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: '#8E8E93',
-      }}
-    >
+      }}>
       <Tab.Screen
         name={navigationString.HOMESCREEN}
         component={HomeScreen}
         options={{
           tabBarLabel: 'Shop',
-          tabBarLabelStyle: { 
+          tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: '600' 
+            fontWeight: '600',
           },
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({focused, color, size}) => {
             return (
               <Ionicons
                 name={focused ? 'storefront' : 'storefront-outline'}
@@ -165,7 +165,7 @@ const Tabroute = () => {
           },
         }}
       />
-      
+
       {/* Uncomment if you want to use Search screen */}
       {/* <Tab.Screen
         name={navigationString.SEACRHINGSCREEN}
@@ -216,20 +216,20 @@ const Tabroute = () => {
           unmountOnBlur: true,
         }}
       /> */}
-         <Tab.Screen
+      <Tab.Screen
         name={navigationString.CARTSCREEN}
         component={ItemCart}
         options={{
           tabBarLabel: 'Cart',
-          tabBarLabelStyle: { 
+          tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: '600' 
+            fontWeight: '600',
           },
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({focused, color, size}) => {
             return (
-              <Ionicons 
-                name={focused ? 'cart' : 'cart-outline'} 
-                size={24} 
+              <Ionicons
+                name={focused ? 'cart' : 'cart-outline'}
+                size={24}
                 color={color}
               />
             );
@@ -250,11 +250,11 @@ const Tabroute = () => {
         component={UserProfile}
         options={{
           tabBarLabel: 'Profile',
-          tabBarLabelStyle: { 
+          tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: '600' 
+            fontWeight: '600',
           },
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({focused, color, size}) => {
             return (
               <Ionicons
                 name={focused ? 'person' : 'person-outline'}

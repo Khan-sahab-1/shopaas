@@ -1,5 +1,3 @@
-
-
 import {
   Modal,
   ScrollView,
@@ -12,29 +10,24 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS } from '../styles/colors';
+import React, {useEffect, useState} from 'react';
+import {COLORS} from '../styles/colors';
 import TextInputCompo from '../components/TextInputCompo';
 import makeApiCall from '../utils/apiHelper';
-import { API_URLS } from '../utils/apiurls';
+import {API_URLS} from '../utils/apiurls';
 import Dropdowncomp from '../components/Dropdowncomp';
 import MessageShow from './MessageShow';
-import { validateAddress } from '../utils/ValidationForm';
+import {validateAddress} from '../utils/ValidationForm';
 
-const AddressModal = ({
-  visible,
-  onClose,
-  data,
-  handleSelectAddress,
-}) => {
+const AddressModal = ({visible, onClose, data, handleSelectAddress}) => {
   // const partnersObj = partnersData?.partners || [];
   // const partners = Object.values(partnersObj);
 
   const [countryItems, setCountryItems] = useState([]);
   const [stateItems, setStateItems] = useState([]);
   const [cityItems, setCityItems] = useState([]);
-  const [stateinfo,setStateInfo]=useState([])
-  console.log(data,'DATA')
+  const [stateinfo, setStateInfo] = useState([]);
+  console.log(data, 'DATA');
 
   const [selectedCountry, setSelectedCountry] = useState({
     label: 'India',
@@ -44,7 +37,7 @@ const AddressModal = ({
   });
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
-  const [isLoding,setisloding]=useState(false)
+  const [isLoding, setisloding] = useState(false);
 
   const [newAddress, setNewAddress] = useState({
     name: '',
@@ -58,7 +51,7 @@ const AddressModal = ({
   });
 
   const handleInputChange = (field, value) => {
-    setNewAddress(prev => ({ ...prev, [field]: value }));
+    setNewAddress(prev => ({...prev, [field]: value}));
   };
 
   const handleClose = () => {
@@ -77,20 +70,19 @@ const AddressModal = ({
       value: 104,
       code: 'IN',
       phone_code: 91,
-    }); 
+    });
     setSelectedState(null);
     setSelectedCity(null);
     onClose();
   };
-  
 
   const fetchCountries = async () => {
     try {
       const response = await makeApiCall(API_URLS.getGeoData, 'POST', {
         jsonrpc: '2.0',
-        params: { country_id: null, state_id: null },
+        params: {country_id: null, state_id: null},
       });
-
+      console.log(response, 'Country=====>>>>>>>');
       const countryObject = response?.result?.data?.country;
       const countryArray = countryObject ? Object.values(countryObject) : [];
 
@@ -111,18 +103,18 @@ const AddressModal = ({
     try {
       const response = await makeApiCall(API_URLS.getGeoData, 'POST', {
         jsonrpc: '2.0',
-        params: { country_id },
+        params: {country_id},
       });
-  
+
       setStateInfo(response?.result?.data);
-  
+
       const stateObject = response?.result?.data?.state;
       const stateArray = stateObject ? Object.values(stateObject) : [];
-      const states = stateArray.map(s => ({ label: s.name, value: s.id }));
-  
+      const states = stateArray.map(s => ({label: s.name, value: s.id}));
+
       setStateItems(states);
       setCityItems([]);
-  
+
       if (preselectedStateId) {
         const matchedState = states.find(s => s.value === preselectedStateId);
         setSelectedState(matchedState || null);
@@ -131,20 +123,19 @@ const AddressModal = ({
       console.log(error);
     }
   };
-  
 
-  const fetchCities = async (country_id,state_id) => {
+  const fetchCities = async (country_id, state_id) => {
     // console.log(country_id,state_id)
     try {
       const response = await makeApiCall(API_URLS.getGeoData, 'POST', {
         jsonrpc: '2.0',
-        params: { state_id:state_id,country_id:country_id },
+        params: {state_id: state_id, country_id: country_id},
       });
       // console.log(response, 'City=====>>>>>>>');
       const cityObject = response?.result?.data?.city;
       const cityArray = cityObject ? Object.values(cityObject) : [];
       // console.log(cityArray, 'City Arrat');
-      setCityItems(cityArray.map(c => ({ label: c.name, value: c.id })));
+      setCityItems(cityArray.map(c => ({label: c.name, value: c.id})));
       setSelectedCity(null);
     } catch (error) {
       console.log(error);
@@ -167,36 +158,36 @@ const AddressModal = ({
   const handleSubmit = async () => {
     try {
       setisloding(true);
-      const { isValid, errors } = validateAddress({
+      const {isValid, errors} = validateAddress({
         name: newAddress.name,
         phone: newAddress.phone,
         houseNumber: newAddress.street1, // House No. & Street
-        state: selectedState?.label || "",
-        city: selectedCity?.label || "",
+        state: selectedState?.label || '',
+        city: selectedCity?.label || '',
         zip: newAddress.zip,
       });
-    
+
       if (!isValid) {
         // Show first error message
         const firstError = Object.values(errors)[0];
         // Alert.alert("Validation Error", firstError);
-        MessageShow.error("Validation Error", firstError)
+        MessageShow.error('Validation Error', firstError);
         return;
       }
-  
+
       const payload = {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         params: {
-          id: data?.id?data?.id:null, 
+          id: data?.id ? data?.id : null,
           name: newAddress.name,
           street: newAddress.street1,
           street2: newAddress.street2,
           zip: newAddress.zip,
           city: selectedCity
-            ? { id: selectedCity.value, name: selectedCity.label }
+            ? {id: selectedCity.value, name: selectedCity.label}
             : null,
           state: selectedState
-            ? { id: selectedState.value, name: selectedState.label }
+            ? {id: selectedState.value, name: selectedState.label}
             : null,
           country: selectedCountry
             ? {
@@ -206,48 +197,48 @@ const AddressModal = ({
                 code: selectedCountry.code,
               }
             : null,
-          phone_code: selectedCountry?.phone_code || "",
+          phone_code: selectedCountry?.phone_code || '',
           email: newAddress.email,
           phone: newAddress.phone,
-          mobile: newAddress.phone, 
+          mobile: newAddress.phone,
         },
       };
-  
-      console.log("Submit Payload:", payload);
-  
-      const response = await makeApiCall(API_URLS.putAdress, "POST", payload);
-  
+
+      console.log('Submit Payload:', payload);
+
+      const response = await makeApiCall(API_URLS.putAdress, 'POST', payload);
+
       if (response?.result) {
-        console.log("Address Saved:", response.result);
-        if(response.result.message==='Success'){
-          Alert.alert("Success", response?.result?.message ?? "Succsss");
-          MessageShow.success('Success',response?.result?.message)
+        console.log('Address Saved:', response.result);
+        if (response.result.message === 'Success') {
+          Alert.alert('Success', response?.result?.message ?? 'Succsss');
+          MessageShow.success('Success', response?.result?.message);
           setNewAddress({
-            name: "",
-            phone: "",
-            email: "",
-            street1: "",
-            street2: "",
-            country: "",
-            state: "",
-            zip: "",
+            name: '',
+            phone: '',
+            email: '',
+            street1: '',
+            street2: '',
+            country: '',
+            state: '',
+            zip: '',
           });
-          onClose()
+          onClose();
         }
-        
+
         // handleSelectAddress && handleSelectAddress(response.result);
         // onClose();
       } else {
-        console.log("Save failed:", response);
-        MessageShow.error('error',response.result?.errorMessage)
+        console.log('Save failed:', response);
+        MessageShow.error('error', response.result?.errorMessage);
       }
-      if(response?.result?.errorMessage){
+      if (response?.result?.errorMessage) {
         // Alert.alert('success','success')
-        MessageShow.error('error',response?.result?.errorMessage)
+        MessageShow.error('error', response?.result?.errorMessage);
       }
     } catch (error) {
-      console.log("Error saving address:", error);
-      MessageShow.error('error',response.result?.errorMessage)
+      console.log('Error saving address:', error);
+      MessageShow.error('error', response.result?.errorMessage);
     } finally {
       setisloding(false);
     }
@@ -263,7 +254,7 @@ const AddressModal = ({
         street2: data.street2 || '',
         zip: data.zip || '',
       });
-  
+
       // Prefill country
       const country = data.country
         ? {
@@ -279,18 +270,18 @@ const AddressModal = ({
             phone_code: 91,
           };
       setSelectedCountry(country);
-  
+
       // Fetch states for this country
       fetchStates(country.value).then(() => {
         // After states are fetched, set selectedState
         if (data.state) {
-          setSelectedState({ label: data.state.name, value: data.state.id });
-  
+          setSelectedState({label: data.state.name, value: data.state.id});
+
           // Fetch cities for this state
           fetchCities(country.value, data.state.id).then(() => {
             // After cities are fetched, set selectedCity
             if (data.city) {
-              setSelectedCity({ label: data.city.name, value: data.city.id });
+              setSelectedCity({label: data.city.name, value: data.city.id});
             }
           });
         }
@@ -315,27 +306,20 @@ const AddressModal = ({
       setSelectedCity(null);
     }
   }, [data]);
-  
-  
-  
-
 
   return (
     <Modal
       transparent
       visible={visible}
       animationType="slide"
-      onRequestClose={onClose}
-    >
+      onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidingView}
-        >
+          style={styles.keyboardAvoidingView}>
           <Pressable
             style={styles.modalContainer}
-            onPress={e => e.stopPropagation()}
-          >
+            onPress={e => e.stopPropagation()}>
             <View style={styles.handleBar} />
             <ScrollView contentContainerStyle={styles.contentContainer}>
               <Text style={styles.title}>Add New Address</Text>
@@ -346,7 +330,6 @@ const AddressModal = ({
                 value={newAddress.name}
                 onChangeText={text => handleInputChange('name', text)}
                 style={styles.input}
-                
               />
               <TextInputCompo
                 placeholder="Phone Number"
@@ -391,7 +374,7 @@ const AddressModal = ({
                 value={selectedState}
                 onChange={item => {
                   setSelectedState(item);
-                  fetchCities(stateinfo?.country_id,item?.value);
+                  fetchCities(stateinfo?.country_id, item?.value);
                 }}
                 placeholder={'Please Select State'}
                 style={styles.input}
@@ -418,16 +401,14 @@ const AddressModal = ({
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
-                  onPress={handleClose}
-                >
-                  <Text style={[styles.buttonText, { color: COLORS.grayText }]}>
+                  onPress={handleClose}>
+                  <Text style={[styles.buttonText, {color: COLORS.grayText}]}>
                     Cancel
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.saveButton]}
-                  onPress={handleSubmit}
-                >
+                  onPress={handleSubmit}>
                   <Text style={[styles.buttonText, styles.saveButtonText]}>
                     Save Address
                   </Text>

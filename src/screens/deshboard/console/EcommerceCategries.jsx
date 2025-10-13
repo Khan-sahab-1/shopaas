@@ -1,23 +1,23 @@
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS } from '../../../styles/colors';
+import React, {useEffect, useState} from 'react';
+import {COLORS} from '../../../styles/colors';
 import Headercomp from '../../../components/Headercomp';
 import makeApiCall from '../../../utils/apiHelper';
-import { API_URLS } from '../../../utils/apiurls';
+import {API_URLS} from '../../../utils/apiurls';
 import Loader from '../../../components/Loader';
 import EcommerceCategoryCreatemodal from './ConsoleForm/Ecommereccategory/EcommerceCategoryCreatemodal';
 import UpdateEcommerecModal from './ConsoleForm/Ecommereccategory/UpdateEcommerecModal';
 import TextInputCompo from '../../../components/TextInputCompo';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
-const EcommerceCategries = ({ navigation }) => {
+const EcommerceCategries = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const [Ecommrcecategory, setecommerceCategory] = useState([]);
   const [creatingmodalopen, setcreatingmodalopen] = useState(false);
@@ -63,18 +63,17 @@ const EcommerceCategries = ({ navigation }) => {
     const delayDebounce = setTimeout(() => {
       fetcEcommerecCategories(); // or filter data here
     }, 500);
-  
+
     return () => clearTimeout(delayDebounce);
-  }, [search]); 
-  
-  const renderItem = ({ item }) => (
+  }, [search]);
+
+  const renderItem = ({item}) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => {
         setselecteditem(item);
         setopenupdatemodal(true);
-      }}
-    >
+      }}>
       <Text style={styles.name}>Name:{item.name}</Text>
       <Text style={styles.detail}>Sequence: {item.sequence}</Text>
       <Text style={styles.detail}>
@@ -84,20 +83,19 @@ const EcommerceCategries = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.whiteColor }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.whiteColor}}>
       <Headercomp
         title={'Ecommerce Categories'}
         onPress={() => navigation.goBack()}
         left={true}
       />
-      <View style={{paddingHorizontal:10}}>
-      <TextInputCompo
-        style={{ ...styles.InputBox }}
-        placeholder="Search......"
-        onChangeText={item => setsearch(item)}
-        value={search}
-      />
-
+      <View style={{paddingHorizontal: 10}}>
+        <TextInputCompo
+          style={{...styles.InputBox}}
+          placeholder="Search......"
+          onChangeText={item => setsearch(item)}
+          value={search}
+        />
       </View>
       <FlatList
         data={Ecommrcecategory}
@@ -106,10 +104,9 @@ const EcommerceCategries = ({ navigation }) => {
         contentContainerStyle={styles.container}
       />
       <TouchableOpacity
-        style={{ ...styles.button }}
-        onPress={() => setcreatingmodalopen(true)}
-      >
-        <Text style={{ ...styles.btnlabel }}>Create</Text>
+        style={{...styles.button}}
+        onPress={() => setcreatingmodalopen(true)}>
+        <Text style={{...styles.btnlabel}}>Create</Text>
       </TouchableOpacity>
       <Loader visible={isLoading} />
       <EcommerceCategoryCreatemodal

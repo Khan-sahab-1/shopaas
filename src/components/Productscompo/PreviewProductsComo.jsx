@@ -621,7 +621,6 @@ const PreviewProductsComp = ({navigation, route}) => {
     // qty: cartQuentity,
   }));
 
-  // Initialize selected variant if not set
   if (!selectedVariant && variants.length > 0) {
     setSelectedVariant(variants[0]);
   }
@@ -681,7 +680,7 @@ const PreviewProductsComp = ({navigation, route}) => {
     dispatch(
       addToCart({
         ...productItem,
-        quantity: 1, // Start with quantity 1 when adding new variant
+        quantity: 1,
         selectedVariant: selectedVariant,
       }),
     );

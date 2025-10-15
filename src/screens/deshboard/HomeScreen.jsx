@@ -532,6 +532,14 @@ const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  // console.log(homeRaw, 'wowowowwowowo');
+  const companeyTypeMaped = homeRaw?.result?.companyTypes;
+  const companeyType = (companeyTypeMaped ?? []).map(item => ({
+    id: item?.[0] ?? null,
+    name: item?.[1] ?? '',
+  }));
+
+  console.log(selectedCompany, 'Selected Companey');
 
   const products = useMemo(() => {
     const prodObj =
@@ -609,24 +617,12 @@ const HomeScreen = ({navigation}) => {
       );
     }
   };
-  const fethhomdata = async () => {
-    try {
-      const responce = await makeApiCall(API_URLS.getcatagory, 'POST', {
-        jsonrpc: '2.0',
-        params: {pageNumber: 1},
-      });
-      console.log(responce, 'getcatagoryWOWOWOWOWOWOWOWWOOOOWOWOWOWOWO');
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    fethhomdata();
-  }, []);
+
   const renderItem = useCallback(
     ({item}) => (
       <ProductsCompo
         item={item}
+        companyTypes={companeyType}
         onAddPress={handleAddToCart}
         onPress={() =>
           navigation.navigate(navigationString.PREVIEWPRODUCTSCOMPO, {item})
@@ -736,6 +732,7 @@ const HomeScreen = ({navigation}) => {
         onClose={() => setIsFilterOpen(false)}
         categories={categories}
         companies={companies}
+        companyTypes={companeyType}
         selectedCategory={selectedCategory}
         selectedCompany={selectedCompany}
         onSelectCategory={c => setSelectedCategory(c)}

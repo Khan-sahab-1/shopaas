@@ -70,7 +70,7 @@ const Editorder = ({navigation, route}) => {
         jsonrpc: '2.0',
         params: {},
       });
-      // console.log(responce?.result, 'OrderFetch');
+      console.log(responce, 'OrderFetch');
       const formatatted = Object.entries(responce?.result?.carrier_ids).map(
         ([key, value]) => ({
           label: value,
@@ -145,25 +145,25 @@ const Editorder = ({navigation, route}) => {
       console.log(error);
     }
   };
-  const handlehanes=async(data)=>{
+  const handlehanes = async data => {
     try {
-      setIsloading(true)
-      const payload={
-        jsonrpc:'2.0',
-        data:data
-      }
-      console.log(payload,'Payload')
-      const responce=await makeApiCall(API_URLS.SavefetchDetails,'POST',{
-        jsonrpc:'2.0',
-        params:payload
-      })
-      console.log(responce,'Responce=====')
+      setIsloading(true);
+      const payload = {
+        jsonrpc: '2.0',
+        data: data,
+      };
+      console.log(payload, 'Payload');
+      const responce = await makeApiCall(API_URLS.SavefetchDetails, 'POST', {
+        jsonrpc: '2.0',
+        params: payload,
+      });
+      console.log(responce, 'Responce=====');
     } catch (error) {
-      console.log(error)
-    } finally{
-      setIsloading(false)
+      console.log(error);
+    } finally {
+      setIsloading(false);
     }
-  }
+  };
 
   const fetchintialRender = async ordetId => {
     try {
@@ -174,7 +174,7 @@ const Editorder = ({navigation, route}) => {
           orderId: ordetId,
         },
       });
-      console.log(res.result?.data?.order);
+      console.log(res, 'Hetch OrderData');
       if (res?.result?.message === 'success') {
         setUpdateddata(res.result?.data?.order);
         MessageShow.success('success', res?.result?.message);
@@ -691,12 +691,16 @@ const Editorder = ({navigation, route}) => {
                           <View style={{width: 120, justifyContent: 'center'}}>
                             <Dropdowncomp
                               data={texdetails}
-                              style={{borderWidth: 0,height:60}}
+                              style={{borderWidth: 0, height: 60}}
                               placeholder={'select'}
-                              onChange={(item)=>{setselecetdTex(item)
-                                handlehanes({ order_lines: updateddata?.order_lines });
-                                handlehanes(Object.values(updateddata?.order_lines || {}));
-
+                              onChange={item => {
+                                setselecetdTex(item);
+                                handlehanes({
+                                  order_lines: updateddata?.order_lines,
+                                });
+                                handlehanes(
+                                  Object.values(updateddata?.order_lines || {}),
+                                );
                               }}
                               value={selectedtex}
                             />

@@ -31,8 +31,8 @@ const Success = ({navigation}) => {
       );
       console.log(response, 'After Success');
       if (response?.result?.message === 'success') {
-        dispatch(fetchCartData());
-        dispatch(clearCart());
+        // dispatch(fetchCartData());
+        // dispatch(clearCart());
 
         console.log('Clear');
       }

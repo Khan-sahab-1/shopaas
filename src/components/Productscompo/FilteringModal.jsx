@@ -1,161 +1,16 @@
-// import {
-//   StyleSheet,
-//   Text,
-//   TouchableOpacity,
-//   View,
-//   Modal,
-//   ScrollView,
-// } from 'react-native';
-// import React, {useState} from 'react';
-// import {COLORS} from '../../styles/colors';
-// import Icon from 'react-native-vector-icons/AntDesign';
-
-// const FilteringModal = ({
-//   isVisible,
-//   onClose,
-//   catagory,
-//   companees,
-//   companeyType,
-//   setselectedCompaney,
-//   onApply
-
-// }) => {
-//   const [seemore, setSeemore] = useState(10);
-
-//   console.log(companees, 'Companees');
-//   console.log(companeyType, 'companeyType');
-
-//   const toggleSeeMore = () => {
-//     if (seemore === 10) {
-//       setSeemore(catagory?.length || 0);
-//     } else {
-//       setSeemore(10);
-//     }
-//   };
-
-//   const handleSelectCategory = item => {
-//     const normalized = { item };
-//     setselectedCompaney(normalized);
-//     onApply?.({ category: normalized });
-//     onClose()
-//   };
-
-//   return (
-//     <Modal visible={isVisible} onRequestClose={onClose} transparent>
-//       <TouchableOpacity style={styles.container} activeOpacity={1}>
-//         <View style={styles.whiteBox}>
-//           {/* Header */}
-//           <View style={styles.header}>
-//             <Text style={styles.title}>Explore by Category</Text>
-//             <Icon name="close" size={30} onPress={onClose} />
-//           </View>
-
-//           {/* Scrollable content */}
-//           <ScrollView showsVerticalScrollIndicator={false}>
-//             <View style={styles.wrapper}>
-//               {catagory?.slice(0, seemore).map((item, index) => (
-//                 <View key={index} style={styles.categoryItem}>
-//                   <Text style={styles.categoryText}>{item?.name || 'hi'}</Text>
-//                 </View>
-//               ))}
-//             </View>
-
-//             {/* See more / See less button */}
-//             {catagory?.length > 10 && (
-//               <TouchableOpacity
-//                 onPress={toggleSeeMore}
-//                 style={styles.seeMoreBtn}>
-//                 <Text style={styles.seeMoreText}>
-//                   {seemore === 10 ? 'See more' : 'See less'}
-//                 </Text>
-//               </TouchableOpacity>
-//             )}
-
-//             <Text style={[styles.title, {marginTop: 20}]}>
-//               Explore by Company
-//             </Text>
-//             {companees?.map((item, index) => {
-//               const id = Array.isArray(item) ? item[0] : item?.id;
-//               const name = Array.isArray(item) ? item[1] : item?.name;
-
-//               return (
-//                 <TouchableOpacity key={id || index} style={styles.categoryItem}
-//                 onPress={() => handleSelectCategory(item)}>
-//                   <Text style={styles.categoryText}>{name}</Text>
-//                 </TouchableOpacity>
-//               );
-//             })}
-
-//           </ScrollView>
-//         </View>
-//       </TouchableOpacity>
-//     </Modal>
-//   );
-// };
-
-// export default FilteringModal;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     backgroundColor: 'rgba(0,0,0,0.5)',
-//     flex: 1,
-//     justifyContent: 'flex-end',
-//     alignItems: 'center',
-//   },
-//   whiteBox: {
-//     padding: 20,
-//     borderRadius: 10,
-//     backgroundColor: COLORS.whiteColor,
-//     width: '100%',
-//     maxHeight: '80%',
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//   },
-//   title: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     marginBottom: 10,
-//   },
-//   wrapper: {
-//     flexDirection: 'row',
-//     flexWrap: 'wrap',
-//   },
-//   categoryItem: {
-//     margin: 5,
-//     paddingVertical: 8,
-//     paddingHorizontal: 16,
-//     borderRadius: 20,
-//     backgroundColor: COLORS.grayColor,
-//   },
-//   categoryText: {
-//     color: COLORS.whiteColor,
-//     fontWeight: '500',
-//   },
-//   seeMoreBtn: {
-//     alignSelf: 'center',
-//     // marginVertical: 10,
-//     // padding: 6,
-//   },
-//   seeMoreText: {
-//     color: COLORS.primaryColor || 'blue',
-//     fontWeight: '600',
-//   },
-// });
-
 // src/components/FilteringModal.js
-import React from 'react';
+import React, {useState, useMemo} from 'react';
 import {
   Modal,
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
+  ScrollView,
+  TextInput,
 } from 'react-native';
-import {moderateScale} from '../../styles/responsiveSize';
+import Icon from 'react-native-vector-icons/AntDesign';
+import IconSearch from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../../styles/colors';
 
 export default function FilteringModal({
@@ -163,6 +18,7 @@ export default function FilteringModal({
   onClose,
   categories = [],
   companies = [],
+  companyTypes = [],
   selectedCategory,
   selectedCompany,
   onSelectCategory,
@@ -170,69 +26,221 @@ export default function FilteringModal({
   onApply,
   onReset,
 }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  // console.log(companies, 'cccccc');
+
+  // Handle both array format [id, name] and object format {id, name}
+  const normalizeItem = item => {
+    if (Array.isArray(item)) {
+      return {id: item[0], name: item[1]};
+    }
+    return item;
+  };
+
+  // Remove duplicates based on name (case-insensitive)
+  const removeDuplicates = items => {
+    const seen = new Map();
+    items.forEach(item => {
+      const normalizedName = item.name?.toLowerCase().trim();
+      // Keep first occurrence or replace if current has more complete data
+      if (
+        !seen.has(normalizedName) ||
+        (item.id && !seen.get(normalizedName).id)
+      ) {
+        seen.set(normalizedName, item);
+      }
+    });
+    return Array.from(seen.values());
+  };
+
+  // Normalize and deduplicate companies & categories
+  const normalizedCompanies = useMemo(() => {
+    const normalized = companies.map(normalizeItem);
+    const deduped = removeDuplicates(normalized);
+    // Sort alphabetically
+    return deduped.sort((a, b) => a.name?.localeCompare(b.name));
+  }, [companies]);
+
+  const normalizedCategories = useMemo(() => {
+    const normalized = categories.map(normalizeItem);
+    const deduped = removeDuplicates(normalized);
+    return deduped.sort((a, b) => a.name?.localeCompare(b.name));
+  }, [categories]);
+
+  // Filter companies based on search query
+  const filteredCompanies = useMemo(() => {
+    if (!searchQuery.trim()) return normalizedCompanies;
+
+    const query = searchQuery.toLowerCase().trim();
+    return normalizedCompanies.filter(company =>
+      company.name?.toLowerCase().includes(query),
+    );
+  }, [normalizedCompanies, searchQuery]);
+
+  const handleReset = () => {
+    setSearchQuery('');
+    onReset?.();
+    onClose?.();
+  };
+
+  const handleApply = () => {
+    setSearchQuery('');
+    onApply?.();
+    onClose?.();
+  };
+
+  const handleClose = () => {
+    setSearchQuery('');
+    onClose?.();
+  };
+
+  const isCompanySelected = company => {
+    if (!selectedCompany) return false;
+    const selectedId = selectedCompany.id ?? selectedCompany;
+    const companyId = company.id ?? company;
+    return selectedId === companyId;
+  };
+
+  const isCategorySelected = category => {
+    if (!selectedCategory) return false;
+    const selectedId = selectedCategory.id ?? selectedCategory;
+    const categoryId = category.id ?? category;
+    return selectedId === categoryId;
+  };
+
   return (
     <Modal
       visible={isVisible}
-      animationType="slide"
-      onRequestClose={onClose}
-      transparent>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
+      animationType="fade"
+      onRequestClose={handleClose}
+      transparent={false}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
           <Text style={styles.heading}>Filter Products</Text>
+          <TouchableOpacity onPress={handleClose} style={styles.closeBtn}>
+            <Icon name="close" size={26} color="#333" />
+          </TouchableOpacity>
+        </View>
 
-          <Text style={styles.sub}>Categories</Text>
-          <FlatList
-            horizontal
-            data={categories}
-            keyExtractor={i => `${i.id}`}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={[
-                  styles.chip,
-                  selectedCategory &&
-                    (selectedCategory.id ?? selectedCategory) ==
-                      (item.id ?? item) &&
-                    styles.chipActive,
-                ]}
-                onPress={() => onSelectCategory(item)}>
-                <Text>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {/* Categories Section */}
+          {normalizedCategories.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>
+                Categories ({normalizedCategories.length})
+              </Text>
+              <View style={styles.chipContainer}>
+                {normalizedCategories.map(item => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.chip,
+                      isCategorySelected(item) && styles.chipActive,
+                    ]}
+                    onPress={() => onSelectCategory(item)}>
+                    <Text
+                      style={[
+                        styles.chipText,
+                        isCategorySelected(item) && styles.chipTextActive,
+                      ]}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
 
-          <Text style={styles.sub}>Companies</Text>
-          <FlatList
-            horizontal
-            data={companies}
-            keyExtractor={i => `${i.id}`}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={[
-                  styles.chip,
-                  selectedCompany &&
-                    (selectedCompany.id ?? selectedCompany) ==
-                      (item.id ?? item) &&
-                    styles.chipActive,
-                ]}
-                onPress={() => onSelectCompany(item)}>
-                <Text numberOfLines={1}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
+          {/* Companies Section */}
+          {normalizedCompanies.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>
+                Companies ({normalizedCompanies.length})
+              </Text>
 
-          <View style={styles.actions}>
-            <TouchableOpacity onPress={onClose} style={styles.actionBtn}>
-              <Text>Reset</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                onApply?.();
-                onClose?.();
-              }}
-              style={[styles.actionBtn, styles.applyBtn]}>
-              <Text style={{color: '#fff'}}>Apply</Text>
-            </TouchableOpacity>
-          </View>
+              {/* Search Bar */}
+              <View style={styles.searchContainer}>
+                <IconSearch
+                  name="search-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search companies..."
+                  placeholderTextColor="#999"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setSearchQuery('')}
+                    style={styles.clearBtn}>
+                    <Icon name="closecircle" size={18} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Company List */}
+              <View style={styles.companyList}>
+                {filteredCompanies.length > 0 ? (
+                  filteredCompanies.map(item => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.companyCard,
+                        isCompanySelected(item) && styles.companyCardActive,
+                      ]}
+                      onPress={() => onSelectCompany(item)}>
+                      <View style={styles.companyContent}>
+                        <Text
+                          style={[
+                            styles.companyName,
+                            isCompanySelected(item) && styles.companyNameActive,
+                          ]}
+                          numberOfLines={2}>
+                          {item.name}
+                        </Text>
+                        {isCompanySelected(item) && (
+                          <Icon
+                            name="checkcircle"
+                            size={20}
+                            color="#007AFF"
+                            style={styles.checkIcon}
+                          />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <View style={styles.emptyState}>
+                    <IconSearch name="search-outline" size={48} color="#ccc" />
+                    <Text style={styles.emptyText}>No companies found</Text>
+                    <Text style={styles.emptySubtext}>
+                      Try a different search term
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Action Buttons - Fixed at bottom */}
+        <View style={styles.actions}>
+          <TouchableOpacity onPress={handleReset} style={styles.resetBtn}>
+            <Text style={styles.resetText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleApply} style={styles.applyBtn}>
+            <Text style={styles.applyText}>Apply Filters</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -240,36 +248,184 @@ export default function FilteringModal({
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  sheet: {
     backgroundColor: '#fff',
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    maxHeight: '60%',
   },
-  heading: {fontSize: 18, fontWeight: '700', marginBottom: 8},
-  sub: {fontSize: 14, fontWeight: '600', marginTop: 8, marginBottom: 6},
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e8e8e8',
+    backgroundColor: '#fff',
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 24,
+    marginBottom: 12,
+    paddingHorizontal: 20,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    gap: 8,
+  },
   chip: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f5f5f5',
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  chipActive: {
+    backgroundColor: '#e3f2fd',
+    borderColor: '#007AFF',
+  },
+  chipText: {
+    fontSize: 14,
+    color: '#555',
+    fontWeight: '500',
+  },
+  chipTextActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  searchIcon: {
     marginRight: 8,
   },
-  chipActive: {backgroundColor: '#dbeafe'},
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#333',
+    padding: 0,
+  },
+  clearBtn: {
+    padding: 4,
+  },
+  companyList: {
+    paddingHorizontal: 20,
+  },
+  companyCard: {
+    backgroundColor: '#fafafa',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: '#e8e8e8',
+  },
+  companyCardActive: {
+    backgroundColor: '#f0f9ff',
+    borderColor: '#007AFF',
+    borderWidth: 2,
+  },
+  companyContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  companyName: {
+    fontSize: 15,
+    color: '#333',
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
+  },
+  companyNameActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  checkIcon: {
+    marginLeft: 8,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+    marginTop: 12,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 4,
+  },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e8e8e8',
+    backgroundColor: '#fff',
   },
-  actionBtn: {padding: 10},
+  resetBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  resetText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#555',
+  },
   applyBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 10,
     backgroundColor: '#007AFF',
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    alignItems: 'center',
+  },
+  applyText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

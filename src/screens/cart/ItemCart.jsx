@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   removeFromCart,
@@ -29,6 +29,7 @@ import axios from 'axios';
 import Loader from '../../components/Loader';
 import {useNavigation} from '@react-navigation/native';
 import navigationString from '../../navigation/navigationString';
+import ModepaymentModal from './ModepaymentModal';
 
 const ItemCart = () => {
   const dispatch = useDispatch();
@@ -37,10 +38,17 @@ const ItemCart = () => {
     state => state.cartinfo,
   );
   console.log(cartData, 'cartData in cart');
+  const session = useSelector(state => state.session);
+  console.log(session, 'session');
   const [isLoding, setIsLoding] = useState(false);
   const [expandedCompanies, setExpandedCompanies] = useState({});
   const [isOrderSummaryExpanded, setIsOrderSummaryExpanded] = useState(true);
+  const [isVisibleModal, setIsVisibleModal] = useState(false);
   // Debounced API sync (avoids calling backend too often)
+
+  useEffect(() => {
+    dispatch(fetchCartData());
+  }, []);
   const debouncedSync = useDebouncedCallback(item => {
     syncCartItem(item);
   }, 700);
@@ -90,7 +98,7 @@ const ItemCart = () => {
     }
 
     const itemTotal = item.list_price * item.quantity;
-    const itemTax = itemTotal * 0.18; // 18% GST example
+    const itemTax = itemTotal * 0.18;
 
     acc[companyId].items.push({
       ...item,
@@ -230,7 +238,9 @@ const ItemCart = () => {
       console.log('🟢 API Response:', response);
       if (response?.result?.items?.every(item => item.status === 'ok')) {
         MessageShow.success('All products added successfully wowowowowowo');
+        dispatch(fetchCartData());
         navigation.navigate(navigationString.BILLINGADDRESS);
+        // setIsVisibleModal(true);
       } else {
         MessageShow.error(
           response?.result?.errorMessage ||
@@ -247,6 +257,10 @@ const ItemCart = () => {
       setIsLoding(false);
     }
   };
+
+  useEffect(() => {
+    dispatch(fetchCartData());
+  }, []);
 
   // Render individual company order summary (collapsible)
   const CompanyOrderSummary = ({company}) => {
@@ -299,7 +313,9 @@ const ItemCart = () => {
 
             <TouchableOpacity
               style={styles.companyCheckoutButton}
-              onPress={() => handleCheckoutCompany(company)}>
+              onPress={() => handleCheckoutCompany(company)}
+              // onPress={() => setIsVisibleModal(true)}
+            >
               <Text style={styles.companyCheckoutButtonText}>
                 Checkout {company.companyName}
               </Text>
@@ -380,7 +396,14 @@ const ItemCart = () => {
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => dispatch(decrementQuantity(item.id))}>
+            onPress={() =>
+              dispatch(
+                decrementQuantity({
+                  productId: item.id,
+                  variantId: item?.selectedVariant.id,
+                }),
+              )
+            }>
             <Text style={styles.quantityButtonText}>-</Text>
           </TouchableOpacity>
 
@@ -388,7 +411,14 @@ const ItemCart = () => {
 
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => dispatch(incrementQuantity(item.id))}>
+            onPress={() =>
+              dispatch(
+                incrementQuantity({
+                  productId: item.id,
+                  variantId: item?.selectedVariant.id,
+                }),
+              )
+            }>
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
 
@@ -565,6 +595,10 @@ const ItemCart = () => {
         )}
         <Loader visible={isLoding} />
       </View>
+      <ModepaymentModal
+        isVisible={isVisibleModal}
+        onclose={() => setIsVisibleModal(false)}
+      />
     </SafeAreaView>
   );
 };

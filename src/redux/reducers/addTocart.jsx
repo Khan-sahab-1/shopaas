@@ -292,6 +292,27 @@ const addToCartSlice = createSlice({
       state.totalAmount = 0;
       state.totalQuantity = 0;
     },
+    clearCompanyCart: (state, action) => {
+      const companyIdToClear = action.payload; // e.g. 48
+
+      // Keep only those items NOT matching the company_id
+      state.cartData = state.cartData.filter(
+        item => item.company_id !== companyIdToClear,
+      );
+
+      // Recalculate totals after removal
+      state.totalQuantity = state.cartData.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
+
+      state.totalAmount = state.cartData.reduce(
+        (total, item) =>
+          total +
+          (item.selectedVariant?.price || item.list_price || 0) * item.quantity,
+        0,
+      );
+    },
   },
 });
 
@@ -302,6 +323,7 @@ export const {
   updateQuantity,
   incrementQuantity,
   decrementQuantity,
+  clearCompanyCart,
 } = addToCartSlice.actions;
 
 export default addToCartSlice.reducer;

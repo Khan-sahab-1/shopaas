@@ -507,8 +507,8 @@ const PaymentOption = ({navigation, route}) => {
   const [paymentdetails, setpaymentdetail] = useState([]);
   const [isLoding, setisLoding] = useState(false);
   const dispatch = useDispatch();
-  const cartData = useSelector(state => state.cartinfo.cartData);
-  console.log(cartData, 'CartDataaa');
+  // const cartData = useSelector(state => state.cartinfo.cartData);
+  // console.log(cartData, 'CartDataaa');
 
   const paymentMethods = paymentdetails?.payment_acquirers;
 

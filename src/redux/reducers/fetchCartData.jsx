@@ -1,19 +1,18 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_URLS } from '../../utils/apiurls';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {API_URLS} from '../../utils/apiurls';
 import makeApiCall from '../../utils/apiHelper';
 
 // Fetch cart data from API
 export const fetchCartData = createAsyncThunk(
- 
   'cart/fetchCartData',
-  async (_, { rejectWithValue }) => {
+  async (_, {rejectWithValue}) => {
     console.log('Fetching cart data...');
     try {
       const response = await makeApiCall(API_URLS.getCart, 'POST', {
         jsonrpc: '2.0',
-        params: { recompute_cart_price: true },
+        params: {recompute_cart_price: true},
       });
-      console.log(response,'RESPONCE')
+      console.log(response, 'RESPONCE');
       if (response?.result?.message === 'Success') {
         const data = response.result.data;
 
@@ -24,12 +23,12 @@ export const fetchCartData = createAsyncThunk(
           sale_order_lines: data.sale_order_lines || {},
           discount: data.discount || 0,
           tax: data.tax || 0,
-          delivery_options:data?.delivery_options||[],
-          delivery:data?.delivery||0,
-          redeem:data?.redeem||false,
-          coupons:data?.coupons||[],
-          allowOrderBySnapshot:data?.allowOrderBySnapshot||false,
-          hideHomeDeveliery:data?.hideHomeDeveliery||false
+          delivery_options: data?.delivery_options || [],
+          delivery: data?.delivery || 0,
+          redeem: data?.redeem || false,
+          coupons: data?.coupons || [],
+          allowOrderBySnapshot: data?.allowOrderBySnapshot || false,
+          hideHomeDeveliery: data?.hideHomeDeveliery || false,
         };
 
         return cartData;
@@ -58,7 +57,7 @@ const cartSlice = createSlice({
   },
   reducers: {
     clearCart: state => {
-      state.cartData = { cart_quantity: 0, subtotal: 0, sale_order_lines: {} };
+      state.cartData = {cart_quantity: 0, subtotal: 0, sale_order_lines: {}};
       state.totalItems = 0;
     },
   },
@@ -80,5 +79,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { clearCart } = cartSlice.actions;
+export const {clearCart} = cartSlice.actions;
 export default cartSlice.reducer;

@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import {moderateScale} from '../../styles/responsiveSize';
-import {COLORS} from '../../styles/colors'; // Assuming COLORS is defined with primary/green/black/white
+import {COLORS} from '../../styles/colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {BASE_URL} from '../../utils/apiurls';
 import {useDispatch, useSelector} from 'react-redux';
@@ -11,19 +11,42 @@ import {
   incrementQuantity,
 } from '../../redux/reducers/addTocart';
 
-const ProductCard = ({item, onAddPress, onPress}) => {
+const ProductCard = ({item, onAddPress, onPress, companyTypes}) => {
   const dispatch = useDispatch();
   const variants = item?.variant_data?.map(v => ({
     id: v[0],
-    uom: v[1],
-    stock: v[2],
+    type: v[1],
     price: v[3],
   }));
 
-  console.log(variants, 'items------');
+  // Always use first variant, but ensure cart items are found by variant
+  const selectedVariant = variants?.[0];
 
   const cartData = useSelector(state => state.cartinfo.cartData);
-  const cartItem = cartData.find(cartItem => cartItem.id === item.id);
+
+  // IMPORTANT: Find cart item by both product ID AND variant ID
+  const cartItem = cartData.find(
+    cartItem =>
+      cartItem.id === item.id &&
+      cartItem.selectedVariant?.id === selectedVariant?.id,
+  );
+
+  // console.log(companyTypes, 'uuwuuwu');
+  // const variants = variantData.map(v => ({
+  //   id: v[0],
+  //   type: v[1],
+  //   price: v[3],
+  //   // qty: cartQuentity,
+  // }));
+
+  // console.log(variants[0], 'items------');
+
+  // const cartData = useSelector(state => state.cartinfo.cartData);
+  // const cartItem = cartData.find(cartItem => cartItem.id === item.id);
+
+  const companeyTypeName =
+    companyTypes.find(ct => ct.id === item?.company_type) || '';
+  // console.log(companeyTypeName);
   const quantity = cartItem?.quantity || 0;
   const discountPercentage = item.discountPercentage || 10;
   const discountedPrice = item.list_price
@@ -36,7 +59,7 @@ const ProductCard = ({item, onAddPress, onPress}) => {
       addToCart({
         ...item,
         quantity: 1,
-        // selecetedAttribute:''
+        selectedVariant: selectedVariant,
       }),
     );
   };
@@ -45,20 +68,43 @@ const ProductCard = ({item, onAddPress, onPress}) => {
   //   dispatch(incrementQuantity(item.id));
   // };
 
+  // const handleIncrement = () => {
+  //   dispatch(
+  //     incrementQuantity({
+  //       productId: item.id,
+  //       selectedVariant: selectedVariant,
+  //     }),
+  //   );
+  // };
+  // const handleDecrement = () => {
+  //   dispatch(
+  //     decrementQuantity({
+  //       productId: item.id,
+  //       selectedVariant: selectedVariant,
+  //     }),
+  //   );
+  // };
+
   const handleIncrement = () => {
-    dispatch(
-      incrementQuantity({
-        productId: item.id,
-        // selectedVariant: selectedVariant.id,
-      }),
-    );
+    if (selectedVariant) {
+      dispatch(
+        incrementQuantity({
+          productId: item.id,
+          variantId: selectedVariant.id,
+        }),
+      );
+    }
   };
+
   const handleDecrement = () => {
-    dispatch(
-      decrementQuantity({
-        productId: item.id,
-      }),
-    );
+    if (selectedVariant && quantity > 0) {
+      dispatch(
+        decrementQuantity({
+          productId: item.id,
+          variantId: selectedVariant.id,
+        }),
+      );
+    }
   };
 
   return (
@@ -94,6 +140,7 @@ const ProductCard = ({item, onAddPress, onPress}) => {
         </Text>
 
         <Text style={styles.productDetail}>{item.category_name || 'Unit'}</Text>
+        <Text style={styles.productDetail}>{companeyTypeName.name || ''}</Text>
 
         <View style={styles.priceActionContainer}>
           <View style={styles.priceContainer}>

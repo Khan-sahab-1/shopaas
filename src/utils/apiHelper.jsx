@@ -31,7 +31,7 @@ const makeApiCall = async (
   } catch (error) {
     console.error('API call error:', error?.response?.data || error.message);
     console.error('🚨 API Call Error Details:');
-    console.error('➡️ Endpoint:', `${BASE_URL}${url}`);
+    console.error('➡️ Endpoint:', `${url}`);
     console.error('➡️ Method:', method);
     console.error('➡️ Payload:', data);
     console.error('➡️ Response:', error?.response?.data || error.message);

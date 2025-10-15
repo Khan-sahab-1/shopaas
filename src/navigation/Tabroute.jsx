@@ -123,6 +123,11 @@ const Tabroute = () => {
   const totalItems = useSelector(state => state.cart.totalItems);
   const cartData = useSelector(state => state.cartinfo.cartData);
   console.log(cartData, '------');
+  const totalQuantity = cartData?.reduce(
+    (acc, item) => acc + Number(item?.quantity || 0),
+    0,
+  );
+  // console.log('Total Quantity:', totalQuantity);
 
   return (
     <Tab.Navigator
@@ -234,7 +239,7 @@ const Tabroute = () => {
               />
             );
           },
-          tabBarBadge: totalItems > 0 ? totalItems : null,
+          tabBarBadge: totalQuantity > 0 ? totalQuantity : null,
           tabBarBadgeStyle: {
             backgroundColor: '#FF3B30',
             color: '#fff',
